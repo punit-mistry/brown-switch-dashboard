@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Moon, Sun } from 'lucide-react'
 import { useTheme } from "next-themes"
 import { motion } from "framer-motion"
-import DashboardPage from '@/components/DashBoard'
+
 export default function DashboardLayout({
   children,
 }: {
@@ -47,7 +47,7 @@ export default function DashboardLayout({
           </Button>
         </header>
         <main className="flex-1 overflow-y-auto p-6">
-          <DashboardPage />
+          {children}
         </main>
       </div>
     </div>
