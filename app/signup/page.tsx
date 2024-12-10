@@ -8,7 +8,7 @@ import Link from "next/link"
 export default function SignUpPage() {
   return (
     <div className="flex min-h-screen">
-      <Sidebar className="w-64 border-r" />
+      <Sidebar  />
       <div className="flex-1 flex items-center justify-center">
         <Card className="w-[350px]">
           <CardHeader>

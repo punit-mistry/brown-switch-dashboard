@@ -21,7 +21,7 @@ export default function DashboardLayout() {
 
   return (
     <div className="flex h-screen overflow-hidden">
-      <Sidebar className="w-64 border-r" />
+      <Sidebar  />
       <div className="flex-1 flex flex-col overflow-hidden">
         <header className="flex justify-between items-center p-4 border-b">
           <motion.h1 
