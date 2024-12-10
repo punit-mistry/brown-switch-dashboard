@@ -7,11 +7,7 @@ import { Moon, Sun } from 'lucide-react'
 import { useTheme } from "next-themes"
 import { motion } from "framer-motion"
 import DashboardPage from '@/components/DashBoard'
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function DashboardLayout() {
   const [isMounted, setIsMounted] = useState(false)
   const { setTheme, theme } = useTheme()
 

@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import Link from "next/link"
+// import Link from "next/link"
 import { useRouter } from 'next/navigation'
 
 export default function SignInPage() {
@@ -35,12 +35,12 @@ export default function SignInPage() {
             </div>
             <Button type="submit" className="w-full">Sign In</Button>
           </form>
-          <div className="mt-4 text-center text-sm">
-            Don't have an account?{" "}
+          {/* <div className="mt-4 text-center text-sm">
+            Don't have an account?
             <Link href="/signup" className="text-blue-500 hover:underline">
               Sign Up
             </Link>
-          </div>
+          </div> */}
         </CardContent>
       </Card>
     </div>

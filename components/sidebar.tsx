@@ -7,9 +7,8 @@ import { LayoutDashboard, Users, ShoppingCart, Settings, LogIn, UserPlus, Chevro
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 
-interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {}
 
-export function Sidebar({ className }: SidebarProps) {
+export function Sidebar() {
   const pathname = usePathname()
   const [isCollapsed, setIsCollapsed] = useState(false)
 
@@ -32,7 +31,6 @@ export function Sidebar({ className }: SidebarProps) {
       className={cn(
         "pb-12 min-h-screen transition-all duration-300 ease-in-out ", 
         isCollapsed ? "w-16 max-w-16" : "w-64 max-w-64", 
-        className
       )}
     >
       <div className="space-y-4 py-4 relative h-full">
