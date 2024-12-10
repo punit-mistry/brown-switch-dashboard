@@ -34,7 +34,7 @@ export default function DashboardLayout({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            Dashboard Brand
+           Brown Switch..
           </motion.h1>
           <Button
             variant="ghost"
