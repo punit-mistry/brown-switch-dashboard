@@ -1,18 +1,55 @@
-'use client'
-import { motion } from "framer-motion"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
-
+"use client";
+import { motion } from "framer-motion";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { useToast } from "@/hooks/use-toast";
+import supabase from "@/utils/supabase/client";
+import { Order as OrderType } from "./types";
+import { useEffect, useState } from "react";
+import EditOrder from "@/components/edit-order";
 export default function OrderPage() {
-  const orders = [
-    { id: "ORD001", customer: "Olivia Martin", total: "$199.00", status: "Completed" },
-    { id: "ORD002", customer: "Jackson Lee", total: "$39.00", status: "Processing" },
-    { id: "ORD003", customer: "Isabella Nguyen", total: "$299.00", status: "Pending" },
-    { id: "ORD004", customer: "William Kim", total: "$99.00", status: "Completed" },
-    { id: "ORD005", customer: "Sofia Davis", total: "$599.00", status: "Processing" },
-  ]
+  const { toast } = useToast();
+  const [allOrders, setOrders] = useState<OrderType[]>([]);
+  const fetchOrders = async () => {
+    const { data, error } = await supabase
+      .from("brown-switches-table")
+      .select()
+      .order("created_at", { ascending: false })
+      .limit(5)
+      .select();
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Something went wrong",
+        variant: "destructive",
+      });
+      return;
+    }
+    setOrders(data);
+    console.log("Orders:", data);
+  };
+
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  const handleOrderUpdate = (updatedOrder: OrderType) => {
+    setOrders((prevOrders) =>
+      prevOrders.map((order) =>
+        order.id === updatedOrder.id ? updatedOrder : order
+      )
+    );
+  };
 
   return (
     <motion.div
@@ -37,16 +74,22 @@ export default function OrderPage() {
                 <TableHead>Order ID</TableHead>
                 <TableHead>Customer</TableHead>
                 <TableHead>Total</TableHead>
+                <TableHead>Product</TableHead>
+                <TableHead>Quantity</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Update </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {orders.map((order) => (
+              {allOrders?.map((order) => (
                 <TableRow key={order.id}>
                   <TableCell>{order.id}</TableCell>
-                  <TableCell>{order.customer}</TableCell>
-                  <TableCell>{order.total}</TableCell>
-                  <TableCell>{order.status}</TableCell>
+                  <TableCell>{order.customer_name}</TableCell>
+                  <TableCell>{order.total_price}</TableCell>
+                  <TableCell>{order.product}</TableCell>
+                  <TableCell>{order.quantity}</TableCell>
+                  <TableCell>{order.order_status}</TableCell>
+                  <TableCell ><EditOrder currentOrder={order} onOrderUpdate={handleOrderUpdate}/> </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -54,6 +97,5 @@ export default function OrderPage() {
         </CardContent>
       </Card>
     </motion.div>
-  )
+  );
 }
-

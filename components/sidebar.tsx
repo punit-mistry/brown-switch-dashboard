@@ -2,7 +2,7 @@
 import React, { useState } from 'react'
 import Link from "next/link"
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Users, ShoppingCart, Settings, LogIn, UserPlus, ChevronRight, ChevronLeft } from 'lucide-react'
+import { LayoutDashboard, Users, ShoppingCart, Settings, LogIn, UserPlus, ChevronRight, ChevronLeft,BookCheck  } from 'lucide-react'
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -18,11 +18,12 @@ export function Sidebar() {
 
   const sidebarItems = [
     { href: "/", icon: LayoutDashboard, label: "Dashboard" },
-    { href: "/user", icon: Users, label: "Users" },
+    // { href: "/user", icon: Users, label: "Users" },
+    { href: "/order-form", icon: BookCheck , label: "Order Form" },
     { href: "/order", icon: ShoppingCart, label: "Orders" },
     { href: "/setting", icon: Settings, label: "Settings" },
-    { href: "/signin", icon: LogIn, label: "Sign In" },
-    { href: "/signup", icon: UserPlus, label: "Sign Up" }
+    // { href: "/signin", icon: LogIn, label: "Sign In" },
+    // { href: "/signup", icon: UserPlus, label: "Sign Up" }
   ]
 
   return (

@@ -3,7 +3,7 @@ import { Inter } from 'next/font/google'
 import "./globals.css"
 import { AuthWrapper } from "@/components/auth-wrapper"
 import { ThemeProvider } from "@/components/theme-provider"
-
+import { Toaster } from "@/components/ui/toaster"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
@@ -25,6 +25,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+            <Toaster />
           <AuthWrapper>{children}</AuthWrapper>
         </ThemeProvider>
       </body>
