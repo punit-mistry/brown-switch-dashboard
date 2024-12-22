@@ -48,16 +48,21 @@ const PRODUCT_PRICES = {
   "Switch - 25 Amp": 100,
   "Switch - 32 Amp": 500,
 };
-type ProductPrices = {
-  "Switch - M/H": number;
-  "Switch - U/H": number;
-  "Switch - B/H": number;
-  "Switch - O/V": number;
-  "Switch - 25 Amp": number;
-  "Switch - 32 Amp": number;
-};
+
+interface InvoiceFormData {
+  customer_name: string;
+  customer_email: string;
+  customer_number: string;
+  product: string;
+  quantity: number;
+  total_price: number;
+  order_status: OrderStatus;
+}
+
 // const PRODUCTS = Object.keys(PRODUCT_PRICES);
-const PRODUCTS: (keyof ProductPrices)[] = Object.keys(PRODUCT_PRICES);
+type ProductKeys = keyof typeof PRODUCT_PRICES;
+
+const PRODUCTS: ProductKeys[] = Object.keys(PRODUCT_PRICES) as ProductKeys[];
 export default function OrderFormPage() {
   const { toast } = useToast();
   const router = useRouter();
@@ -73,14 +78,22 @@ export default function OrderFormPage() {
   const [errors, setErrors] = useState<FormErrors>({});
   
   const [showInvoice, setShowInvoice] = useState(false);
-  const [orderData , setOrderData] = useState<any>({});
+  const [orderData, setOrderData] = useState<InvoiceFormData>({
+    customer_name: "",
+    customer_email: "",
+    customer_number: "",
+    product: "",
+    quantity: 1,
+    total_price: 0,
+    order_status: OrderStatus.PLACED
+  });
   
   // Total price based on selected product and quantity
   const [totalPrice, setTotalPrice] = useState<number>(PRODUCT_PRICES[PRODUCTS[0]] as number);
 
   // Update total price when product or quantity changes
   useEffect(() => {
-    const productPrice = PRODUCT_PRICES[formData.product] || 0;
+    const productPrice = PRODUCT_PRICES[formData.product as keyof typeof PRODUCT_PRICES] || 0;
     setTotalPrice(productPrice * formData.quantity);
   }, [formData.product, formData.quantity]);
 
@@ -166,7 +179,7 @@ export default function OrderFormPage() {
     
     setErrors({});
     
-    // router.push('/');
+    router.push('/dashboard');
   };
 
   return (

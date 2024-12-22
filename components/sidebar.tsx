@@ -79,7 +79,7 @@
 
 
 
-import { BookCheck, Calendar, Home, Inbox, LayoutDashboard, Search, Settings, ShoppingCart } from "lucide-react"
+import { BookCheck,  LayoutDashboard, Settings, ShoppingCart } from "lucide-react"
 
 import {
   Sidebar,
@@ -90,7 +90,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarTrigger,
 } from "@/components/ui/sidebar"
 
 // Menu items.

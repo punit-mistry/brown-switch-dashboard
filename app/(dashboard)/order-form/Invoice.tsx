@@ -3,8 +3,17 @@ import { jsPDF } from 'jspdf';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/router';
 
+interface OrderData {
+  customer_name: string;
+  customer_email: string;
+  customer_number: string;
+  product: string;
+  quantity: number;
+  total_price: number;
+}
+
 interface InvoiceProps {
-  orderData: any;
+  orderData: OrderData;
   onClose: () => void;
 }
 
@@ -44,6 +53,7 @@ const Invoice = ({ orderData, onClose }: InvoiceProps) => {
         }
       } catch (error) {
         // setEmailError('Failed to send email. Please try again.');
+        console.log(error);
       }
 
     

@@ -6,14 +6,9 @@ const isPublic = createRouteMatcher([
   '/sign-in(.*)',
   '/sign-up(.*)',
 ])
-// const isProtected = createRouteMatcher([
-//   '/dashboard',
-//   '/invoices/:invoiceId',
-//   '/invoices/new'
-// ])
 
 export default clerkMiddleware(async (auth, request) => {
-  if (!isPublic(request)) await auth.protect()
+  if (!isPublic(request)) auth.protect()
 })
 export const config = {
   matcher: [

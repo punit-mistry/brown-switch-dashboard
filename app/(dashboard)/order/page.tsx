@@ -11,21 +11,22 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { useToast } from "@/hooks/use-toast";
-import supabase from "@/utils/supabase/client";
 import { Order as OrderType } from "./types";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import EditOrder from "@/components/edit-order";
 import useOrderStore from "@/stores";
+interface OrderStore {
+  orders: OrderType[];
+  fetchOrders: () => void;
+}
 export default function OrderPage() {
-  const { toast } = useToast();
   // const [orders, setOrders] = useState<OrderType[]>([]);
-  const { orders , fetchOrders } = useOrderStore();
+  const { orders , fetchOrders } = useOrderStore()as OrderStore;
   useEffect(() => {
     fetchOrders();
   }, [fetchOrders]);
 
-  const handleOrderUpdate = (updatedOrder: OrderType) => {
+  const handleOrderUpdate = () => {
     // setOrders((prevOrders) =>
     //   prevOrders.map((order) =>
     //     order.id === updatedOrder.id ? updatedOrder : order

@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { ModeToggle } from '@/components/theme-toggle';
-import { SignedIn, SignedOut, UserButton, SignInButton } from '@clerk/nextjs';
+import {UserButton, SignInButton } from '@clerk/nextjs';
 import { useAuth } from "@clerk/nextjs";
 export default function Header() {
     const { isSignedIn } = useAuth();
