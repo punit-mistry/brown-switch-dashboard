@@ -1,35 +1,26 @@
-import type { Metadata } from "next"
-import { Inter } from 'next/font/google'
-import "./globals.css"
-import { AuthWrapper } from "@/components/auth-wrapper"
-import { ThemeProvider } from "@/components/theme-provider"
-import { Toaster } from "@/components/ui/toaster"
-const inter = Inter({ subsets: ["latin"] })
-
-export const metadata: Metadata = {
-  title: "Dashboard",
-  description: "A modern dashboard built with Next.js and shadcn/ui",
-}
-
+import { ClerkProvider } from "@clerk/nextjs";
+import "./globals.css";
+import { ThemeProvider } from "@/components/theme-provider";
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-            <Toaster />
-          <AuthWrapper>{children}</AuthWrapper>
-        </ThemeProvider>
-      </body>
-    </html>
-  )
+    <ClerkProvider>
+      <html lang="en">
+        <body>
+          {" "}
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+          </ThemeProvider>
+        </body>
+      </html>
+    </ClerkProvider>
+  );
 }
-

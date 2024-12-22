@@ -16,39 +16,21 @@ import supabase from "@/utils/supabase/client";
 import { Order as OrderType } from "./types";
 import { useEffect, useState } from "react";
 import EditOrder from "@/components/edit-order";
+import useOrderStore from "@/stores";
 export default function OrderPage() {
   const { toast } = useToast();
-  const [allOrders, setOrders] = useState<OrderType[]>([]);
-  const fetchOrders = async () => {
-    const { data, error } = await supabase
-      .from("brown-switches-table")
-      .select()
-      .order("created_at", { ascending: false })
-      .limit(5)
-      .select();
-
-    if (error) {
-      toast({
-        title: "Error",
-        description: "Something went wrong",
-        variant: "destructive",
-      });
-      return;
-    }
-    setOrders(data);
-    console.log("Orders:", data);
-  };
-
+  // const [orders, setOrders] = useState<OrderType[]>([]);
+  const { orders , fetchOrders } = useOrderStore();
   useEffect(() => {
     fetchOrders();
-  }, []);
+  }, [fetchOrders]);
 
   const handleOrderUpdate = (updatedOrder: OrderType) => {
-    setOrders((prevOrders) =>
-      prevOrders.map((order) =>
-        order.id === updatedOrder.id ? updatedOrder : order
-      )
-    );
+    // setOrders((prevOrders) =>
+    //   prevOrders.map((order) =>
+    //     order.id === updatedOrder.id ? updatedOrder : order
+    //   )
+    // );
   };
 
   return (
@@ -81,7 +63,7 @@ export default function OrderPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {allOrders?.map((order) => (
+              {orders?.map((order) => (
                 <TableRow key={order.id}>
                   <TableCell>{order.id}</TableCell>
                   <TableCell>{order.customer_name}</TableCell>

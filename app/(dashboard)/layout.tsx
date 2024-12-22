@@ -1,12 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Sidebar } from "@/components/sidebar"
+import Sidebar  from "@/components/sidebar" 
 import { Button } from "@/components/ui/button"
 import { Moon, Sun } from 'lucide-react'
 import { useTheme } from "next-themes"
 import { motion } from "framer-motion"
-
+import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 export default function DashboardLayout({
   children,
 }: {
@@ -14,7 +14,6 @@ export default function DashboardLayout({
 }) {
   const [isMounted, setIsMounted] = useState(false)
   const { setTheme, theme } = useTheme()
-
   useEffect(() => {
     setIsMounted(true)
   }, [])
@@ -25,6 +24,7 @@ export default function DashboardLayout({
 
   return (
     <div className="flex h-screen overflow-hidden">
+       <SidebarProvider>
       <Sidebar  />
       <div className="flex-1 flex flex-col overflow-hidden">
         <header className="flex justify-between items-center p-4 border-b">
@@ -33,7 +33,8 @@ export default function DashboardLayout({
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-          >
+            >
+            <SidebarTrigger/>
            Brown Switch..
           </motion.h1>
           <Button
@@ -50,6 +51,8 @@ export default function DashboardLayout({
           {children}
         </main>
       </div>
+      </SidebarProvider>
+
     </div>
   )
 }
