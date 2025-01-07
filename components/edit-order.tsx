@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import {
   Dialog,
@@ -24,16 +23,26 @@ import supabase from "@/utils/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Order } from "@/app/(dashboard)/order/types";
 import { OrderStatus } from "@/app/(dashboard)/order-form/types";
-
+import useOrderStore from "@/stores";
+import { useUser } from '@clerk/nextjs'
+import { useRouter } from 'next/navigation'
 interface OrderEditDialogProps {
   currentOrder: Order;
   onOrderUpdate: (order: Order) => void;
 }
+interface StoreType {
+  updateOrder: (updatedOrder: Order) => void;
+}
 
 const OrderEditDialog = ({ currentOrder,onOrderUpdate }: OrderEditDialogProps) => {
   const { toast } = useToast();
+  const router = useRouter()
   const [status, setStatus] = useState<string>(currentOrder?.order_status);
   const [isOpen, setIsOpen] = useState(false);
+  const { updateOrder } = useOrderStore() as StoreType;
+
+ const {user} =  useUser()
+  !user?.id && router.push('/')
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const updatedOrder = { ...currentOrder, order_status: status };
@@ -56,7 +65,7 @@ const OrderEditDialog = ({ currentOrder,onOrderUpdate }: OrderEditDialogProps) =
       description: "Order updated successfully",
       variant: "default",
     });
-    console.log("Order updated:", data);
+    updateOrder(data[0]); // Pass updated order to parent
     onOrderUpdate(data[0]); // Pass updated order to parent
     setIsOpen(false);
   };

@@ -16,7 +16,7 @@ import supabase from "@/utils/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from 'next/navigation';
 import Invoice from "./Invoice";
-
+import { useUser } from '@clerk/nextjs'
 const FIELDS = [
   { id: "name", label: "Name", type: "text", placeholder: "Enter your name" },
   {
@@ -57,6 +57,7 @@ interface InvoiceFormData {
   quantity: number;
   total_price: number;
   order_status: OrderStatus;
+  customer_id: string | null;
 }
 
 // const PRODUCTS = Object.keys(PRODUCT_PRICES);
@@ -66,7 +67,7 @@ const PRODUCTS: ProductKeys[] = Object.keys(PRODUCT_PRICES) as ProductKeys[];
 export default function OrderFormPage() {
   const { toast } = useToast();
   const router = useRouter();
-  
+  const { user } = useUser()
   const [formData, setFormData] = useState<FormData>({
     name: "",
     email: "",
@@ -85,7 +86,8 @@ export default function OrderFormPage() {
     product: "",
     quantity: 1,
     total_price: 0,
-    order_status: OrderStatus.PLACED
+    order_status: OrderStatus.PLACED,
+    customer_id: user?.id || null
   });
   
   // Total price based on selected product and quantity
@@ -142,7 +144,8 @@ export default function OrderFormPage() {
       product: formData.product,
       quantity: formData.quantity,
       total_price: totalPrice,
-      order_status: OrderStatus.PLACED
+      order_status: OrderStatus.PLACED,
+    customer_id: user?.id ||  null
     };
 
     const { error } = await supabase

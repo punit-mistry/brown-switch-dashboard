@@ -15,16 +15,18 @@ import { Order as OrderType } from "./types";
 import { useEffect } from "react";
 import EditOrder from "@/components/edit-order";
 import useOrderStore from "@/stores";
+import { useUser } from '@clerk/nextjs'
 interface OrderStore {
   orders: OrderType[];
   fetchOrders: () => void;
 }
 export default function OrderPage() {
+  const { user } =  useUser()
   // const [orders, setOrders] = useState<OrderType[]>([]);
   const { orders , fetchOrders } = useOrderStore()as OrderStore;
   useEffect(() => {
-    fetchOrders();
-  }, [fetchOrders]);
+    fetchOrders(user?.id || null);
+  }, [user?.id, fetchOrders]);
 
   const handleOrderUpdate = () => {
     // setOrders((prevOrders) =>
@@ -41,7 +43,7 @@ export default function OrderPage() {
       transition={{ duration: 0.5 }}
     >
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-3xl font-bold">Orders</h1>
+        <h1 className="text-3xl font-bold">Orders for {user?.firstName}</h1>
         <Button asChild>
           <Link href="/order-form">New Order</Link>
         </Button>

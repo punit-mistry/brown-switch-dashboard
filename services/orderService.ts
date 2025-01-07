@@ -1,13 +1,13 @@
 import supabase from "@/utils/supabase/client";
 import { Order as OrderType } from "@/app/(dashboard)/order/types";
 
-export const fetchOrders = async () => {
+export const fetchOrders = async (userId:string | null) => {
   const { data, error } = await supabase
     .from("brown-switches-table")
     .select()
     .order("created_at", { ascending: false })
     .limit(5)
-    .select();
+    .eq('customer_id', userId)
 
   if (error) {
     throw new Error("Error fetching orders");

@@ -1,7 +1,7 @@
 import React from 'react';
 import { jsPDF } from 'jspdf';
 import { Button } from '@/components/ui/button';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 interface OrderData {
   customer_name: string;
