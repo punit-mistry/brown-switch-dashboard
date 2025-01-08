@@ -98,6 +98,7 @@ const sidebarItems = [
       { url: "/order-form", icon: BookCheck , title: "Order Form" },
       { url: "/order", icon: ShoppingCart, title: "Orders" },
       { url: "/setting", icon: Settings, title: "Settings" },
+      { url: "/profile", icon: Settings, title: "Profile" },
     ]
 
 const AppSidebar = () => {
