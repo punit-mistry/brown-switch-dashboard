@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from 'react'
-import { Plus, Pencil, Trash2 } from 'lucide-react'
+import { Plus, Pencil, Trash2, Upload } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -11,7 +11,8 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { toast } from "@/hooks/use-toast"
 import { Badge } from "@/components/ui/badge"
-import supabase  from '@/utils/supabase/client'
+import supabase from '@/utils/supabase/client'
+import { BulkUploadModal } from '@/components/BulkUploadModal'
 
 interface Product {
   id: string;
@@ -25,6 +26,7 @@ export default function InventoryPage() {
   const [newProduct, setNewProduct] = useState<Omit<Product, 'id'>>({ name: '', price: 0, inStock: true });
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -142,68 +144,73 @@ export default function InventoryPage() {
       <CardContent>
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">Current Inventory</h2>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={() => setEditingProduct(null)}>
-                <Plus className="mr-2 h-4 w-4" /> Add Product
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>{editingProduct ? 'Edit Product' : 'Add New Product'}</DialogTitle>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="name" className="text-right">
-                    Name
-                  </Label>
-                  <Input
-                    id="name"
-                    value={editingProduct ? editingProduct.name : newProduct.name}
-                    onChange={(e) => editingProduct 
-                      ? setEditingProduct({...editingProduct, name: e.target.value})
-                      : setNewProduct({...newProduct, name: e.target.value})
-                    }
-                    className="col-span-3"
-                  />
+          <div className="space-x-2">
+            <Button onClick={() => setIsBulkUploadOpen(true)}>
+              <Upload className="mr-2 h-4 w-4" /> Bulk Upload
+            </Button>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button onClick={() => setEditingProduct(null)}>
+                  <Plus className="mr-2 h-4 w-4" /> Add Product
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>{editingProduct ? 'Edit Product' : 'Add New Product'}</DialogTitle>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="name" className="text-right">
+                      Name
+                    </Label>
+                    <Input
+                      id="name"
+                      value={editingProduct ? editingProduct.name : newProduct.name}
+                      onChange={(e) => editingProduct 
+                        ? setEditingProduct({...editingProduct, name: e.target.value})
+                        : setNewProduct({...newProduct, name: e.target.value})
+                      }
+                      className="col-span-3"
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="price" className="text-right">
+                      Price
+                    </Label>
+                    <Input
+                      id="price"
+                      type="number"
+                      value={editingProduct ? editingProduct.price : newProduct.price}
+                      onChange={(e) => {
+                        const price = parseFloat(e.target.value);
+                        editingProduct 
+                          ? setEditingProduct({...editingProduct, price})
+                          : setNewProduct({...newProduct, price});
+                      }}
+                      className="col-span-3"
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="inStock" className="text-right">
+                      In Stock
+                    </Label>
+                    <Switch
+                      id="inStock"
+                      checked={editingProduct ? editingProduct.inStock : newProduct.inStock}
+                      onCheckedChange={(checked) => 
+                        editingProduct
+                          ? setEditingProduct({...editingProduct, inStock: checked})
+                          : setNewProduct({...newProduct, inStock: checked})
+                      }
+                    />
+                  </div>
                 </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="price" className="text-right">
-                    Price
-                  </Label>
-                  <Input
-                    id="price"
-                    type="number"
-                    value={editingProduct ? editingProduct.price : newProduct.price}
-                    onChange={(e) => {
-                      const price = parseFloat(e.target.value);
-                      editingProduct 
-                        ? setEditingProduct({...editingProduct, price})
-                        : setNewProduct({...newProduct, price});
-                    }}
-                    className="col-span-3"
-                  />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="inStock" className="text-right">
-                    In Stock
-                  </Label>
-                  <Switch
-                    id="inStock"
-                    checked={editingProduct ? editingProduct.inStock : newProduct.inStock}
-                    onCheckedChange={(checked) => 
-                      editingProduct
-                        ? setEditingProduct({...editingProduct, inStock: checked})
-                        : setNewProduct({...newProduct, inStock: checked})
-                    }
-                  />
-                </div>
-              </div>
-              <Button onClick={editingProduct ? handleUpdateProduct : handleAddProduct}>
-                {editingProduct ? 'Update Product' : 'Add Product'}
-              </Button>
-            </DialogContent>
-          </Dialog>
+                <Button onClick={editingProduct ? handleUpdateProduct : handleAddProduct}>
+                  {editingProduct ? 'Update Product' : 'Add Product'}
+                </Button>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
         {isLoading ? (
           <div>Loading...</div>
@@ -252,6 +259,11 @@ export default function InventoryPage() {
           </Table>
         )}
       </CardContent>
+      <BulkUploadModal
+        isOpen={isBulkUploadOpen}
+        onClose={() => setIsBulkUploadOpen(false)}
+        onProductsUploaded={fetchProducts}
+      />
     </Card>
   )
 }
