@@ -7,7 +7,6 @@
 // import { cn } from "@/lib/utils"
 // import { Button } from "@/components/ui/button"
 
-
 // export function Sidebar() {
 //   const pathname = usePathname()
 //   const [isCollapsed, setIsCollapsed] = useState(false)
@@ -27,15 +26,15 @@
 //   ]
 
 //   return (
-//     <div 
+//     <div
 //       key={isCollapsed ? 'collapsed' : 'expanded'} // Force re-render
 //       className={cn(
-//         "pb-12 min-h-screen transition-all duration-300 ease-in-out ", 
-//         isCollapsed ? "w-16 max-w-16" : "w-64 max-w-64", 
+//         "pb-12 min-h-screen transition-all duration-300 ease-in-out ",
+//         isCollapsed ? "w-16 max-w-16" : "w-64 max-w-64",
 //       )}
 //     >
 //       <div className="space-y-4 py-4 relative h-full">
-//         <div 
+//         <div
 //           className={cn("absolute -right-3 top-2 bg-black rounded-full hover:cursor-pointer flex items-center justify-center z-50",isCollapsed ?" right-[30%]":'-right-3' )}
 
 //           onClick={toggleSidebar}
@@ -46,16 +45,16 @@
 //             <ChevronLeft className="h-6 w-6 text-white dark:text-gray-400" />
 //           )}
 //         </div>
-        
+
 //         {!isCollapsed && (
 //           <h2 className="mb-2 px-4 text-lg font-semibold">Dashboard</h2>
 //         )}
-        
+
 //         <div className="space-y-1">
 //           {sidebarItems.map((item) => (
-//             <Button 
+//             <Button
 //               key={item.href}
-//               variant={pathname === item.href ? "secondary" : "ghost"} 
+//               variant={pathname === item.href ? "secondary" : "ghost"}
 //               className={cn(
 //                 "w-full justify-start transition-all duration-300",
 //                 isCollapsed ? "p-0 justify-center" : ""
@@ -64,7 +63,7 @@
 //             >
 //               <Link href={item.href}>
 //                 <item.icon className={cn(
-//                   "h-4 w-4", 
+//                   "h-4 w-4",
 //                   isCollapsed ? "mr-0 my-4" : "mr-2"
 //                 )} />
 //                 {!isCollapsed && item.label}
@@ -77,9 +76,12 @@
 //   )
 // }
 
-
-
-import { BookCheck,  LayoutDashboard, Settings, ShoppingCart } from "lucide-react"
+import {
+  BookCheck,
+  LayoutDashboard,
+  Settings,
+  ShoppingCart,
+} from "lucide-react";
 
 import {
   Sidebar,
@@ -90,26 +92,37 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
+import { OrganizationSwitcher } from "@clerk/nextjs";
 
 // Menu items.
 const sidebarItems = [
-      { url: "/dashboard", icon: LayoutDashboard, title: "Dashboard" },
-      { url: "/order-form", icon: BookCheck , title: "Order Form" },
-      { url: "/order", icon: ShoppingCart, title: "Orders" },
-      { url: "/setting", icon: Settings, title: "Settings" },
-      { url: "/profile", icon: Settings, title: "Profile" },
-    ]
+  { url: "/dashboard", icon: LayoutDashboard, title: "Dashboard" },
+  { url: "/order-form", icon: BookCheck, title: "Order Form" },
+  { url: "/order", icon: ShoppingCart, title: "Orders" },
+  { url: "/setting", icon: Settings, title: "Settings" },
+  { url: "/profile", icon: Settings, title: "Profile" },
+];
 
 const AppSidebar = () => {
   return (
     <Sidebar>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Application
-          {/* <SidebarTrigger /> */}
+          <SidebarGroupLabel>
+            <OrganizationSwitcher
+              afterCreateOrganizationUrl={"/dashboard"}
+              afterSelectOrganizationUrl="/dashboard"
+              appearance={{
+                elements: {
+                  organizationPreviewAvatarBox: "size-6",
+                },
+              }}
+            />
+
+            {/* <SidebarTrigger /> */}
           </SidebarGroupLabel>
-          <SidebarGroupContent>
+          <SidebarGroupContent className="mt-3">
             <SidebarMenu>
               {sidebarItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
@@ -126,7 +139,7 @@ const AppSidebar = () => {
         </SidebarGroup>
       </SidebarContent>
     </Sidebar>
-  )
-}
+  );
+};
 
-export default AppSidebar
+export default AppSidebar;
