@@ -12,21 +12,30 @@ import {
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Order as OrderType } from "./types";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import EditOrder from "@/components/edit-order";
 import useOrderStore from "@/stores";
-import { useUser } from '@clerk/nextjs'
+import { useUser,useAuth } from '@clerk/nextjs'
 interface OrderStore {
   orders: OrderType[];
-  fetchOrders: () => void;
+  fetchOrders: (userId:string | null,orgId:string) => void;
 }
 export default function OrderPage() {
   const { user } =  useUser()
+  const { orgId } = useAuth() || ''
   // const [orders, setOrders] = useState<OrderType[]>([]);
   const { orders , fetchOrders } = useOrderStore()as OrderStore;
+
+  const handleFetchOrders = useCallback(() => {
+    if (user?.id && orgId) {
+      fetchOrders(user.id, orgId);
+    }
+  }, [user?.id, orgId, fetchOrders]);
+
   useEffect(() => {
-    fetchOrders(user?.id || null);
-  }, [user?.id, fetchOrders]);
+    handleFetchOrders();
+  }, [handleFetchOrders]);
+  
 
   const handleOrderUpdate = () => {
     // setOrders((prevOrders) =>

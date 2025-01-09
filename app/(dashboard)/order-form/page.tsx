@@ -16,7 +16,7 @@ import supabase from "@/utils/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from 'next/navigation';
 import Invoice from "./Invoice";
-import { useUser } from '@clerk/nextjs'
+import { useUser,useAuth } from '@clerk/nextjs'
 const FIELDS = [
   { id: "name", label: "Name", type: "text", placeholder: "Enter your name" },
   {
@@ -65,6 +65,7 @@ type ProductKeys = keyof typeof PRODUCT_PRICES;
 
 const PRODUCTS: ProductKeys[] = Object.keys(PRODUCT_PRICES) as ProductKeys[];
 export default function OrderFormPage() {
+  const { orgId } = useAuth()
   const { toast } = useToast();
   const router = useRouter();
   const { user } = useUser()
@@ -145,7 +146,8 @@ export default function OrderFormPage() {
       quantity: formData.quantity,
       total_price: totalPrice,
       order_status: OrderStatus.PLACED,
-    customer_id: user?.id ||  null
+    customer_id: user?.id ||  null,
+    organizationId: orgId
     };
 
     const { error } = await supabase
