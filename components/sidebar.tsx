@@ -81,6 +81,8 @@ import {
   LayoutDashboard,
   Settings,
   ShoppingCart,
+  UserRoundPen ,
+  Archive
 } from "lucide-react";
 
 import {
@@ -100,8 +102,9 @@ const sidebarItems = [
   { url: "/dashboard", icon: LayoutDashboard, title: "Dashboard" },
   { url: "/order-form", icon: BookCheck, title: "Order Form" },
   { url: "/order", icon: ShoppingCart, title: "Orders" },
+  { url: "/inventory", icon: Archive, title: "Inventory" },
   { url: "/setting", icon: Settings, title: "Settings" },
-  { url: "/profile", icon: Settings, title: "Profile" },
+  { url: "/profile", icon: UserRoundPen, title: "Profile" },
 ];
 
 const AppSidebar = () => {
