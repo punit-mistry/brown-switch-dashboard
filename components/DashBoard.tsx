@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import supabase from '@/utils/supabase/client'
 import { OrderStatus } from '@/app/(dashboard)/order-form/types'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { useAuth } from '@clerk/nextjs'
 
 interface Order {
   id: string
@@ -32,6 +33,7 @@ interface RevenueData {
 }
 
 export default function DashboardPage() {
+  const { orgId } = useAuth()
   const [totalOrders, setTotalOrders] = useState<number | null>(null)
   const [totalRevenue, setTotalRevenue] = useState<number | null>(null)
   const [productsInStock, setProductsInStock] = useState<number | null>(null)
@@ -40,14 +42,15 @@ export default function DashboardPage() {
   const [revenueData, setRevenueData] = useState<RevenueData[] | null>(null)
 
   useEffect(() => {
-    fetchDashboardData()
-  }, [])
+    orgId && fetchDashboardData()
+  }, [orgId])
 
   async function fetchDashboardData() {
     // Fetch total orders and revenue
     const { data: orderData, error: orderError } = await supabase
       .from('brown-switches-table')
       .select('total_price, created_at')
+      .eq('organizationId', orgId)
 
     if (orderError) {
       console.error('Error fetching orders:', orderError)
@@ -73,7 +76,8 @@ export default function DashboardPage() {
     const { data: productData, error: productError } = await supabase
       .from('products')
       .select('inStock')
-      .eq('inStock', true)
+    .eq('organizationId', orgId)
+    .eq('inStock', true)
 
     if (productError) {
       console.error('Error fetching products:', productError)
