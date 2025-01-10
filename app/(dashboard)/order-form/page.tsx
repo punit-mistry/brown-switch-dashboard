@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -14,9 +15,10 @@ import {
 import { FormData, FormErrors, OrderStatus } from "./types";
 import supabase from "@/utils/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 import Invoice from "./Invoice";
-import { useUser,useAuth } from '@clerk/nextjs'
+import { useUser, useAuth } from "@clerk/nextjs";
+
 const FIELDS = [
   { id: "name", label: "Name", type: "text", placeholder: "Enter your name" },
   {
@@ -40,14 +42,12 @@ const FIELDS = [
   },
 ];
 
-const PRODUCT_PRICES = {
-  "Switch - M/H": 200,
-  "Switch - U/H": 300,
-  "Switch - B/H": 400,
-  "Switch - O/V": 600,
-  "Switch - 25 Amp": 100,
-  "Switch - 32 Amp": 500,
-};
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  inStock: boolean;
+}
 
 interface InvoiceFormData {
   customer_name: string;
@@ -60,15 +60,11 @@ interface InvoiceFormData {
   customer_id: string | null;
 }
 
-// const PRODUCTS = Object.keys(PRODUCT_PRICES);
-type ProductKeys = keyof typeof PRODUCT_PRICES;
-
-const PRODUCTS: ProductKeys[] = Object.keys(PRODUCT_PRICES) as ProductKeys[];
 export default function OrderFormPage() {
-  const { orgId } = useAuth()
+  const { orgId } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
-  const { user } = useUser()
+  const { user } = useUser();
   const [formData, setFormData] = useState<FormData>({
     name: "",
     email: "",
@@ -78,7 +74,6 @@ export default function OrderFormPage() {
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
-  
   const [showInvoice, setShowInvoice] = useState(false);
   const [orderData, setOrderData] = useState<InvoiceFormData>({
     customer_name: "",
@@ -88,27 +83,52 @@ export default function OrderFormPage() {
     quantity: 1,
     total_price: 0,
     order_status: OrderStatus.PLACED,
-    customer_id: user?.id || null
+    customer_id: user?.id || null,
   });
-  
-  // Total price based on selected product and quantity
-  const [totalPrice, setTotalPrice] = useState<number>(PRODUCT_PRICES[PRODUCTS[0]] as number);
 
-  // Update total price when product or quantity changes
+  const [products, setProducts] = useState<Product[]>([]);
+  const [totalPrice, setTotalPrice] = useState<number>(0);
+
   useEffect(() => {
-    const productPrice = PRODUCT_PRICES[formData.product as keyof typeof PRODUCT_PRICES] || 0;
-    setTotalPrice(productPrice * formData.quantity);
-  }, [formData.product, formData.quantity]);
+    orgId && fetchProducts();
+  }, [orgId]);
+
+  const fetchProducts = async () => {
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .eq("organizationId", orgId)
+      .order("name", { ascending: true });
+
+    if (error) {
+      toast({
+        title: "Error fetching products",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      setProducts(data);
+    }
+  };
+
+  useEffect(() => {
+    if (formData.product && formData.quantity) {
+      const selectedProduct = products.find((p) => p.name === formData.product);
+      if (selectedProduct) {
+        setTotalPrice(selectedProduct.price * formData.quantity);
+      }
+    }
+  }, [formData.product, formData.quantity, products]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    setErrors((prev) => ({ ...prev, [name]: "" })); // Clear error on input
+    setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const handleSelectChange = (value: string) => {
     setFormData((prev) => ({ ...prev, product: value }));
-    setErrors((prev) => ({ ...prev, product: "" })); // Clear error on selection
+    setErrors((prev) => ({ ...prev, product: "" }));
   };
 
   const validateForm = (): FormErrors => {
@@ -126,18 +146,27 @@ export default function OrderFormPage() {
     if (!formData.product) newErrors.product = "Product selection is required.";
     if (formData.quantity < 1)
       newErrors.quantity = "Quantity must be at least 1.";
-    
+
     return newErrors;
   };
 
-  const handleSubmit = async(e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const validationErrors = validateForm();
-    
+
     if (Object.keys(validationErrors).length > 0)
       return setErrors(validationErrors);
-      
+    const selectedProduct = products.find(p => p.name === formData.product);
+  
+    if (!selectedProduct || !selectedProduct.inStock) {
+      toast({
+        title: "Product Unavailable",
+        description: "The selected product is out of stock.",
+        variant: "destructive",
+      });
+      return;
+    }
     const payloadForm = {
       customer_name: formData.name,
       customer_email: formData.email,
@@ -146,8 +175,8 @@ export default function OrderFormPage() {
       quantity: formData.quantity,
       total_price: totalPrice,
       order_status: OrderStatus.PLACED,
-    customer_id: user?.id ||  null,
-    organizationId: orgId
+      customer_id: user?.id || null,
+      organizationId: orgId,
     };
 
     const { error } = await supabase
@@ -163,17 +192,17 @@ export default function OrderFormPage() {
       });
       return;
     }
-    
+
     toast({
       title: "Success",
       description: "Order placed successfully",
       variant: "default",
     });
-    
+
     console.log("Form Data:", formData);
-    setShowInvoice(true); // Show the invoice after successful submission
-    setOrderData(payloadForm); // Store order data for invoice
-    
+    setShowInvoice(true);
+    setOrderData(payloadForm);
+
     setFormData({
       name: "",
       email: "",
@@ -181,10 +210,10 @@ export default function OrderFormPage() {
       product: "",
       quantity: 1,
     });
-    
+
     setErrors({});
-    
-    router.push('/dashboard');
+
+    router.push("/dashboard");
   };
 
   return (
@@ -219,9 +248,9 @@ export default function OrderFormPage() {
                   <SelectValue placeholder="Select the Switch" />
                 </SelectTrigger>
                 <SelectContent>
-                  {PRODUCTS.map((item) => (
-                    <SelectItem key={item} value={item}>
-                      {item}
+                  {products.map((product) => (
+                    <SelectItem key={product.id} value={product.name}>
+                      {product.name} {!product.inStock && "(Out of Stock)"}
                     </SelectItem>
                   ))}
                 </SelectContent>

@@ -1,44 +1,68 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from 'react'
-import { Plus, Pencil, Trash2, Upload } from 'lucide-react'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
-import { toast } from "@/hooks/use-toast"
-import { Badge } from "@/components/ui/badge"
-import supabase from '@/utils/supabase/client'
-import { BulkUploadModal } from '@/components/BulkUploadModal'
-
+import { useEffect, useState } from "react";
+import { Plus, Pencil, Trash2, Upload } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { toast } from "@/hooks/use-toast";
+import { Badge } from "@/components/ui/badge";
+import supabase from "@/utils/supabase/client";
+import { BulkUploadModal } from "@/components/BulkUploadModal";
+import { useAuth } from "@clerk/nextjs";
 interface Product {
   id: string;
   name: string;
   price: number;
   inStock: boolean;
+  organizationId?: string;
 }
 
 export default function InventoryPage() {
+  const { orgId, isLoaded } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
-  const [newProduct, setNewProduct] = useState<Omit<Product, 'id'>>({ name: '', price: 0, inStock: true });
+  const [newProduct, setNewProduct] = useState<Omit<Product, "id">>({
+    name: "",
+    price: 0,
+    inStock: true,
+  });
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetchProducts();
-  }, []);
+    if (isLoaded && orgId) {
+      fetchProducts();
+      // Update the new product template with the orgId
+      setNewProduct(prev => ({ ...prev, organizationId: orgId }));
+    }
+  }, [isLoaded, orgId]);
 
   async function fetchProducts() {
     setIsLoading(true);
     const { data, error } = await supabase
-      .from('products')
-      .select('*')
-      .order('name', { ascending: true });
+      .from("products")
+      .select("*")
+      .eq("organizationId", orgId)
+      .order("name", { ascending: true });
 
     if (error) {
       toast({
@@ -55,8 +79,8 @@ export default function InventoryPage() {
   const handleAddProduct = async () => {
     if (newProduct.name && newProduct.price > 0) {
       const { data, error } = await supabase
-        .from('products')
-        .insert([newProduct])
+        .from("products")
+        .insert([{ ...newProduct, organizationId: orgId }])
         .select();
 
       if (error) {
@@ -67,7 +91,7 @@ export default function InventoryPage() {
         });
       } else if (data) {
         setProducts([...products, data[0]]);
-        setNewProduct({ name: '', price: 0, inStock: true });
+        setNewProduct({ name: "", price: 0, inStock: true });
         setIsDialogOpen(false);
         toast({
           title: "Product Added",
@@ -86,9 +110,9 @@ export default function InventoryPage() {
   const handleUpdateProduct = async () => {
     if (editingProduct && editingProduct.name && editingProduct.price > 0) {
       const { data, error } = await supabase
-        .from('products')
+        .from("products")
         .update(editingProduct)
-        .eq('id', editingProduct.id)
+        .eq("id", editingProduct.id)
         .select();
 
       if (error) {
@@ -98,7 +122,9 @@ export default function InventoryPage() {
           variant: "destructive",
         });
       } else if (data) {
-        setProducts(products.map(p => p.id === editingProduct.id ? data[0] : p));
+        setProducts(
+          products.map((p) => (p.id === editingProduct.id ? data[0] : p))
+        );
         setEditingProduct(null);
         setIsDialogOpen(false);
         toast({
@@ -116,10 +142,7 @@ export default function InventoryPage() {
   };
 
   const handleDeleteProduct = async (id: string) => {
-    const { error } = await supabase
-      .from('products')
-      .delete()
-      .eq('id', id);
+    const { error } = await supabase.from("products").delete().eq("id", id);
 
     if (error) {
       toast({
@@ -128,7 +151,7 @@ export default function InventoryPage() {
         variant: "destructive",
       });
     } else {
-      setProducts(products.filter(p => p.id !== id));
+      setProducts(products.filter((p) => p.id !== id));
       toast({
         title: "Product Deleted",
         description: "The product has been removed from the inventory.",
@@ -139,7 +162,9 @@ export default function InventoryPage() {
   return (
     <Card className="w-full max-w-4xl mx-auto">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold">Inventory Management</CardTitle>
+        <CardTitle className="text-2xl font-bold">
+          Inventory Management
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex justify-between items-center mb-4">
@@ -156,7 +181,9 @@ export default function InventoryPage() {
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>{editingProduct ? 'Edit Product' : 'Add New Product'}</DialogTitle>
+                  <DialogTitle>
+                    {editingProduct ? "Edit Product" : "Add New Product"}
+                  </DialogTitle>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
                   <div className="grid grid-cols-4 items-center gap-4">
@@ -165,10 +192,19 @@ export default function InventoryPage() {
                     </Label>
                     <Input
                       id="name"
-                      value={editingProduct ? editingProduct.name : newProduct.name}
-                      onChange={(e) => editingProduct 
-                        ? setEditingProduct({...editingProduct, name: e.target.value})
-                        : setNewProduct({...newProduct, name: e.target.value})
+                      value={
+                        editingProduct ? editingProduct.name : newProduct.name
+                      }
+                      onChange={(e) =>
+                        editingProduct
+                          ? setEditingProduct({
+                              ...editingProduct,
+                              name: e.target.value,
+                            })
+                          : setNewProduct({
+                              ...newProduct,
+                              name: e.target.value,
+                            })
                       }
                       className="col-span-3"
                     />
@@ -180,12 +216,14 @@ export default function InventoryPage() {
                     <Input
                       id="price"
                       type="number"
-                      value={editingProduct ? editingProduct.price : newProduct.price}
+                      value={
+                        editingProduct ? editingProduct.price : newProduct.price
+                      }
                       onChange={(e) => {
                         const price = parseFloat(e.target.value);
-                        editingProduct 
-                          ? setEditingProduct({...editingProduct, price})
-                          : setNewProduct({...newProduct, price});
+                        editingProduct
+                          ? setEditingProduct({ ...editingProduct, price })
+                          : setNewProduct({ ...newProduct, price });
                       }}
                       className="col-span-3"
                     />
@@ -196,17 +234,28 @@ export default function InventoryPage() {
                     </Label>
                     <Switch
                       id="inStock"
-                      checked={editingProduct ? editingProduct.inStock : newProduct.inStock}
-                      onCheckedChange={(checked) => 
+                      checked={
                         editingProduct
-                          ? setEditingProduct({...editingProduct, inStock: checked})
-                          : setNewProduct({...newProduct, inStock: checked})
+                          ? editingProduct.inStock
+                          : newProduct.inStock
+                      }
+                      onCheckedChange={(checked) =>
+                        editingProduct
+                          ? setEditingProduct({
+                              ...editingProduct,
+                              inStock: checked,
+                            })
+                          : setNewProduct({ ...newProduct, inStock: checked })
                       }
                     />
                   </div>
                 </div>
-                <Button onClick={editingProduct ? handleUpdateProduct : handleAddProduct}>
-                  {editingProduct ? 'Update Product' : 'Add Product'}
+                <Button
+                  onClick={
+                    editingProduct ? handleUpdateProduct : handleAddProduct
+                  }
+                >
+                  {editingProduct ? "Update Product" : "Add Product"}
                 </Button>
               </DialogContent>
             </Dialog>
@@ -230,7 +279,9 @@ export default function InventoryPage() {
                   <TableCell>{product.name}</TableCell>
                   <TableCell>${product.price.toFixed(2)}</TableCell>
                   <TableCell>
-                    <Badge variant={product.inStock ? "outline" : "destructive"}>
+                    <Badge
+                      variant={product.inStock ? "outline" : "destructive"}
+                    >
                       {product.inStock ? "In Stock" : "Out of Stock"}
                     </Badge>
                   </TableCell>
@@ -265,6 +316,5 @@ export default function InventoryPage() {
         onProductsUploaded={fetchProducts}
       />
     </Card>
-  )
+  );
 }
-
