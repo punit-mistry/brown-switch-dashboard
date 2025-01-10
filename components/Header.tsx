@@ -16,7 +16,7 @@ export default function Header() {
           className="flex items-center"
         >
           <div className="w-8 h-8 bg-brown-400 rounded-full mr-2"></div>
-          <span className="text-xl font-bold text-brown-800">BrownSwitch</span>
+          <span className="text-xl font-bold text-brown-800">Dashboard</span>
         </motion.div>
         <motion.div
           whileHover={{ scale: 1.05 }}

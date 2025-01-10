@@ -3,8 +3,11 @@
 import { motion } from 'framer-motion'
 import { AuroraBackground } from "@/components/ui/aurora-background";
 import { useRouter } from 'next/navigation'
+import { Button } from './ui/button';
+import { useAuth } from '@clerk/nextjs';
 export default function HeroSection() {
   const router = useRouter()
+  const { isSignedIn } = useAuth();
   return (
   
     <AuroraBackground>
@@ -22,11 +25,17 @@ export default function HeroSection() {
       Engineered for Precision, Built for Machines.
       </div>
       <div className="font-extralight text-base md:text-4xl dark:text-neutral-200 py-4">
-      The Brown Switch: Reliable, Durable, Unstoppable.
+      Track Board : Reliable, Durable, Unstoppable.
       </div>
-      <button className="bg-black dark:bg-white rounded-full w-fit text-white dark:text-black px-4 py-2" onClick={()=>router.push('/dashboard')} >
-        Order Now.
-      </button>
+      {isSignedIn
+      ?
+      <Button variant="outline" className="dark:text-white" onClick={()=>router.push('/dashboard')} >
+      Track Order Now. 
+      </Button>
+      : <Button variant="outline" className="dark:text-white" onClick={()=>router.push('/sign-in')} >
+      Join Now.
+      </Button>
+}
     </motion.div>
   </AuroraBackground>
   )
