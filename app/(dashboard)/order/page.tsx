@@ -23,7 +23,6 @@ interface OrderStore {
 export default function OrderPage() {
   const { user } =  useUser()
   const { orgId } = useAuth() || ''
-  // const [orders, setOrders] = useState<OrderType[]>([]);
   const { orders , fetchOrders } = useOrderStore()as OrderStore;
 
   const handleFetchOrders = useCallback(() => {
@@ -35,15 +34,6 @@ export default function OrderPage() {
   useEffect(() => {
     handleFetchOrders();
   }, [handleFetchOrders]);
-  
-
-  const handleOrderUpdate = () => {
-    // setOrders((prevOrders) =>
-    //   prevOrders.map((order) =>
-    //     order.id === updatedOrder.id ? updatedOrder : order
-    //   )
-    // );
-  };
 
   return (
     <motion.div
@@ -83,7 +73,7 @@ export default function OrderPage() {
                   <TableCell>{order.product}</TableCell>
                   <TableCell>{order.quantity}</TableCell>
                   <TableCell>{order.order_status}</TableCell>
-                  <TableCell ><EditOrder currentOrder={order} onOrderUpdate={handleOrderUpdate}/> </TableCell>
+                  <TableCell ><EditOrder currentOrder={order} /> </TableCell>
                 </TableRow>
               ))}
             </TableBody>

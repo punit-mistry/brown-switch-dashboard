@@ -28,13 +28,12 @@ import { useUser } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 interface OrderEditDialogProps {
   currentOrder: Order;
-  onOrderUpdate: (order: Order) => void;
 }
 interface StoreType {
   updateOrder: (updatedOrder: Order) => void;
 }
 
-const OrderEditDialog = ({ currentOrder,onOrderUpdate }: OrderEditDialogProps) => {
+const OrderEditDialog = ({ currentOrder }: OrderEditDialogProps) => {
   const { toast } = useToast();
   const router = useRouter()
   const [status, setStatus] = useState<string>(currentOrder?.order_status);
@@ -66,7 +65,6 @@ const OrderEditDialog = ({ currentOrder,onOrderUpdate }: OrderEditDialogProps) =
       variant: "default",
     });
     updateOrder(data[0]); // Pass updated order to parent
-    onOrderUpdate(data[0]); // Pass updated order to parent
     setIsOpen(false);
   };
 
