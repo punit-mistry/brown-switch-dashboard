@@ -42,10 +42,22 @@ export default function DashboardPage() {
   const [revenueData, setRevenueData] = useState<RevenueData[] | null>(null)
 
   useEffect(() => {
-    orgId && fetchDashboardData()
+    if (orgId) {
+      fetchDashboardData()
+    } else {
+      // Set default values when orgId is not available
+      setTotalOrders(0)
+      setTotalRevenue(0)
+      setProductsInStock(0)
+      setRecentOrders([])
+      setTopProducts([])
+      setRevenueData([])
+    }
   }, [orgId])
 
   async function fetchDashboardData() {
+    if (!orgId) return
+
     // Fetch total orders and revenue
     const { data: orderData, error: orderError } = await supabase
       .from('brown-switches-table')
@@ -54,6 +66,9 @@ export default function DashboardPage() {
 
     if (orderError) {
       console.error('Error fetching orders:', orderError)
+      setTotalOrders(0)
+      setTotalRevenue(0)
+      setRevenueData([])
     } else {
       setTotalOrders(orderData.length)
       setTotalRevenue(orderData.reduce((sum, order) => sum + order.total_price, 0))
@@ -76,11 +91,12 @@ export default function DashboardPage() {
     const { data: productData, error: productError } = await supabase
       .from('products')
       .select('inStock')
-    .eq('organizationId', orgId)
-    .eq('inStock', true)
+      .eq('organizationId', orgId)
+      .eq('inStock', true)
 
     if (productError) {
       console.error('Error fetching products:', productError)
+      setProductsInStock(0)
     } else {
       setProductsInStock(productData.length)
     }
@@ -89,11 +105,13 @@ export default function DashboardPage() {
     const { data: recentOrderData, error: recentOrderError } = await supabase
       .from('brown-switches-table')
       .select('*')
+      .eq('organizationId', orgId)
       .order('created_at', { ascending: false })
       .limit(5)
 
     if (recentOrderError) {
       console.error('Error fetching recent orders:', recentOrderError)
+      setRecentOrders([])
     } else {
       setRecentOrders(recentOrderData)
     }
@@ -102,9 +120,11 @@ export default function DashboardPage() {
     const { data: topProductData, error: topProductError } = await supabase
       .from('brown-switches-table')
       .select('product, quantity')
+      .eq('organizationId', orgId)
 
     if (topProductError) {
       console.error('Error fetching top products:', topProductError)
+      setTopProducts([])
     } else {
       const productCounts = topProductData.reduce((acc, order) => {
         acc[order.product] = (acc[order.product] || 0) + order.quantity
@@ -123,7 +143,6 @@ export default function DashboardPage() {
   return (
     <div className="container mx-auto p-4 space-y-4">
       <h1 className="text-2xl font-bold mb-4">Dashboard Overview</h1>
-      
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -170,6 +189,10 @@ export default function DashboardPage() {
         <CardContent>
           {revenueData === null ? (
             <Skeleton className="h-[300px] w-full" />
+          ) : revenueData.length === 0 ? (
+            <div className="h-[300px] flex items-center justify-center text-gray-500">
+              No revenue data available
+            </div>
           ) : (
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={revenueData}>
@@ -195,6 +218,8 @@ export default function DashboardPage() {
                 <Skeleton key={i} className="h-12 w-full" />
               ))}
             </div>
+          ) : recentOrders.length === 0 ? (
+            <div className="text-center text-gray-500 py-4">No recent orders found</div>
           ) : (
             <Table>
               <TableHeader>
@@ -237,6 +262,8 @@ export default function DashboardPage() {
                 <Skeleton key={i} className="h-12 w-full" />
               ))}
             </div>
+          ) : topProducts.length === 0 ? (
+            <div className="text-center text-gray-500 py-4">No top selling products data available</div>
           ) : (
             <Table>
               <TableHeader>

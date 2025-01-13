@@ -12,13 +12,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { FormData, FormErrors, OrderStatus } from "./types";
+import { FormData, FormErrors, OrderStatus } from "../../(dashboard)/order-form/types";
 import supabase from "@/utils/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useRouter } from "next/navigation";
-import Invoice from "./Invoice";
-import { useUser, useAuth } from "@clerk/nextjs";
-import { Copy } from 'lucide-react';
+import Invoice from "../../(dashboard)/order-form/Invoice";
 
 const FIELDS = [
   { id: "name", label: "Name", type: "text", placeholder: "Enter your name" },
@@ -61,11 +58,8 @@ interface InvoiceFormData {
   customer_id: string | null;
 }
 
-export default function OrderFormPage() {
-  const { orgId } = useAuth();
+export default function PublicOrderFormPage() {
   const { toast } = useToast();
-  const router = useRouter();
-  const { user } = useUser();
   const [formData, setFormData] = useState<FormData>({
     name: "",
     email: "",
@@ -84,21 +78,20 @@ export default function OrderFormPage() {
     quantity: 1,
     total_price: 0,
     order_status: OrderStatus.PLACED,
-    customer_id: user?.id || null,
+    customer_id: null,
   });
 
   const [products, setProducts] = useState<Product[]>([]);
   const [totalPrice, setTotalPrice] = useState<number>(0);
 
   useEffect(() => {
-    orgId && fetchProducts();
-  }, [orgId]);
+    fetchProducts();
+  }, []);
 
   const fetchProducts = async () => {
     const { data, error } = await supabase
       .from("products")
       .select("*")
-      .eq("organizationId", orgId)
       .order("name", { ascending: true });
 
     if (error) {
@@ -176,8 +169,7 @@ export default function OrderFormPage() {
       quantity: formData.quantity,
       total_price: totalPrice,
       order_status: OrderStatus.PLACED,
-      customer_id: user?.id || null,
-      organizationId: orgId,
+      customer_id: null,
     };
 
     const { error } = await supabase
@@ -213,30 +205,13 @@ export default function OrderFormPage() {
     });
 
     setErrors({});
-
-    router.push("/dashboard");
-  };
-
-  const copyPublicLink = () => {
-    const publicLink = `${window.location.origin}/public-order-form`;
-    navigator.clipboard.writeText(publicLink);
-    toast({
-      title: "Link Copied",
-      description: "Public order form link has been copied to clipboard",
-      variant: "default",
-    });
   };
 
   return (
     <div className="flex items-center justify-center p-4">
       <Card className="w-full max-w-[500px]">
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader>
           <CardTitle>Place an Order</CardTitle>
-          {orgId && (
-            <Button variant="outline" size="icon" onClick={copyPublicLink}>
-              <Copy className="h-4 w-4" />
-            </Button>
-          )}
         </CardHeader>
         <CardContent>
           <form className="space-y-4" onSubmit={handleSubmit}>
