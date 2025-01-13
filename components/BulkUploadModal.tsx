@@ -58,7 +58,7 @@ export function BulkUploadModal({ isOpen, onClose, onProductsUploaded }: BulkUpl
       const products = XLSX.utils.sheet_to_json(sheet)
 
       try {
-        const { data, error } = await supabase
+        const {  error } = await supabase
           .from('products')
           .insert(products)
 
@@ -71,6 +71,7 @@ export function BulkUploadModal({ isOpen, onClose, onProductsUploaded }: BulkUpl
         onProductsUploaded()
         onClose()
       } catch (error) {
+        console.error('Error uploading products:', error)
         toast({
           title: "Error",
           description: "Failed to upload products. Please try again.",

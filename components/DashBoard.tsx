@@ -20,12 +20,6 @@ interface Order {
   created_at: string
 }
 
-interface Product {
-  id: string
-  name: string
-  price: number
-  inStock: boolean
-}
 
 interface RevenueData {
   date: string

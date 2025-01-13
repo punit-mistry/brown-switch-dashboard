@@ -18,7 +18,7 @@ import {
   TableRow 
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Mail, Phone, MapPin, Calendar } from 'lucide-react';
+import { Mail, Phone,  Calendar } from 'lucide-react';
 interface User {
   id: string;
   emailAddress: string;

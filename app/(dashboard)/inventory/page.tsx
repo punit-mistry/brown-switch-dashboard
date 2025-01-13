@@ -221,9 +221,11 @@ export default function InventoryPage() {
                       }
                       onChange={(e) => {
                         const price = parseFloat(e.target.value);
-                        editingProduct
-                          ? setEditingProduct({ ...editingProduct, price })
-                          : setNewProduct({ ...newProduct, price });
+                        if (editingProduct) {
+                          setEditingProduct({ ...editingProduct, price });
+                        } else {
+                          setNewProduct({ ...newProduct, price });
+                        }
                       }}
                       className="col-span-3"
                     />

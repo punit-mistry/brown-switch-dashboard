@@ -91,7 +91,7 @@ export default function OrderFormPage() {
   const [totalPrice, setTotalPrice] = useState<number>(0);
 
   useEffect(() => {
-    orgId && fetchProducts();
+    if (orgId) fetchProducts();
   }, [orgId]);
 
   const fetchProducts = async () => {

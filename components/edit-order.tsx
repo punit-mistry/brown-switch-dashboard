@@ -41,7 +41,7 @@ const OrderEditDialog = ({ currentOrder }: OrderEditDialogProps) => {
   const { updateOrder } = useOrderStore() as StoreType;
 
  const {user} =  useUser()
-  !user?.id && router.push('/')
+  if(!user?.id) router.push('/')
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const updatedOrder = { ...currentOrder, order_status: status };
