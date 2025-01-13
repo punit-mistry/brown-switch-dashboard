@@ -1,5 +1,4 @@
 import React from 'react';
-import { currentUser  } from '@clerk/nextjs/server';
 import { 
   Card, 
   CardContent, 
@@ -32,16 +31,9 @@ interface User {
   createdAt: string;
   imageUrl: string;
 }
-const UserProfile = async() => {
-  const user = await currentUser() as User | null;
+const UserProfile = ({user}: {user: User}) => {
 
-  if (!user) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <p className="text-lg text-gray-500">Loading user information...</p>
-      </div>
-    );
-  }
+
 
   const getInitials = (name: string) => {
     return name

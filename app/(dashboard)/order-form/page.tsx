@@ -19,6 +19,7 @@ import { useRouter } from "next/navigation";
 import Invoice from "./Invoice";
 import { useUser, useAuth } from "@clerk/nextjs";
 import { Copy } from 'lucide-react';
+import { sendNewOrderNotification } from "@/utils/notificationService";
 
 const FIELDS = [
   { id: "name", label: "Name", type: "text", placeholder: "Enter your name" },
@@ -91,7 +92,7 @@ export default function OrderFormPage() {
   const [totalPrice, setTotalPrice] = useState<number>(0);
 
   useEffect(() => {
-    if (orgId) fetchProducts();
+    orgId && fetchProducts();
   }, [orgId]);
 
   const fetchProducts = async () => {
@@ -180,7 +181,7 @@ export default function OrderFormPage() {
       organizationId: orgId,
     };
 
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from("brown-switches-table")
       .insert(payloadForm)
       .select();
@@ -192,6 +193,19 @@ export default function OrderFormPage() {
         variant: "destructive",
       });
       return;
+    }
+
+    // Send new order notification
+    try {
+      await sendNewOrderNotification(data[0]);
+    } catch (error) {
+      console.error('Failed to send new order notification:', error);
+      // Optionally, you can show a toast to inform the admin that the notification failed
+      toast({
+        title: "Notification Error",
+        description: "Failed to send new order notification",
+        variant: "destructive",
+      });
     }
 
     toast({
