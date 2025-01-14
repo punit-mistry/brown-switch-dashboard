@@ -1,16 +1,19 @@
-import { Resend } from 'resend';
-
-const resend = new Resend(process.env.NEXT_PUBLIC_RESEND_EMAIL_API);
-
 export async function sendEmail(to: string, subject: string, html: string) {
   try {
-    const data = await resend.emails.send({
-      from: process.env.EMAIL_FROM || 'onboarding@resend.dev',
-      to,
-      subject,
-      html,
+    const response = await fetch('/api/send-mail', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ to, subject, html }),
     });
-    console.log(`Email sent to ${to}`);
+
+    if (!response.ok) {
+      throw new Error('Failed to send email');
+    }
+
+    const data = await response.json();
+    console.log(`Email sent to ${to}`, data);
     return data;
   } catch (error) {
     console.error('Error sending email:', error);
@@ -28,7 +31,7 @@ export async function sendNewOrderNotification(order: any) {
     <p>Quantity: ${order.quantity}</p>
     <p>Total Price: $${order.total_price.toFixed(2)}</p>
   `;
-  await sendEmail(process.env.ADMIN_EMAIL || '', subject, html);
+  await sendEmail(order.customer_email || '', subject, html);
 }
 
 export async function sendLowStockAlert(product: any) {
@@ -42,4 +45,3 @@ export async function sendLowStockAlert(product: any) {
   `;
   await sendEmail(process.env.ADMIN_EMAIL || '', subject, html);
 }
-
